@@ -1,5 +1,6 @@
 # danny3_outlawalert
 This is a remake of the esx_outlawalert by Jager_bom. Feel free to do as you like with this resource.
+To trigger my nB_fishing - https://github.com/rizal499/nB_fishing
 
 ## Credits
 
