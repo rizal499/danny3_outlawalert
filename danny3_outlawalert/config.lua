@@ -3,7 +3,7 @@ Config = {}
 Config.Locale = 'en'
 
 -- Set the time (in minutes) during the player is outlaw
-Config.Timer = 1
+Config.Timer = 5
 
 -- Set if show alert when player use gun
 Config.GunshotAlert = true
@@ -15,13 +15,19 @@ Config.CarJackingAlert = true
 Config.MeleeAlert = true
 
 -- In seconds
-Config.BlipGunTime = 5
+Config.BlipGunTime = 360
+
+-- In seconds
+Config.BlipSharkTime = 500
 
 -- Blip radius, in float value!
 Config.BlipGunRadius = 50.0
 
+-- Blip radius, in float value!
+Config.BlipSharkRadius = 20.0
+
 -- In seconds
-Config.BlipMeleeTime = 7
+Config.BlipMeleeTime = 500
 
 -- Blip radius, in float value!
 Config.BlipMeleeRadius = 50.0
