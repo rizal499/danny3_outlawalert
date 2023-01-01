@@ -1,13 +1,13 @@
-ESX = nil
+ESX = exports["es_extended"]:getSharedObject()
 
 local timing, isPlayerWhitelisted = math.ceil(Config.Timer * 60000), false
 local streetName, playerGender
 
 Citizen.CreateThread(function()
-	while ESX == nil do
-		TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
-		Citizen.Wait(0)
-	end
+	-- while ESX == nil do
+	-- 	TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+	-- 	Citizen.Wait(0)
+	-- end
 
 	while ESX.GetPlayerData().job == nil do
 		Citizen.Wait(10)
@@ -96,6 +96,11 @@ Citizen.CreateThread(function()
 	end
 end)
 
+local Pukulan = 0
+local Tembakan = 0
+local MaxPukulan = 8
+local MaxTembakan = 6
+
 Citizen.CreateThread(function()
 	while true do
 		Citizen.Wait(0)
@@ -130,33 +135,40 @@ Citizen.CreateThread(function()
 			end
 			-- is in combat
 		elseif IsPedInMeleeCombat(playerPed) and Config.MeleeAlert then
+			if isPlayerWhitelisted then
+			else
+				Pukulan = Pukulan + 1
+				if Pukulan >= MaxPukulan then
+					Citizen.Wait(50000)
+					print(MaxPukulan)
+					if (isPlayerWhitelisted and Config.ShowCopsMisbehave) or not isPlayerWhitelisted then
+						DecorSetInt(playerPed, 'isOutlaw', 2)
 
-			Citizen.Wait(3000)
-
-			if (isPlayerWhitelisted and Config.ShowCopsMisbehave) or not isPlayerWhitelisted then
-				DecorSetInt(playerPed, 'isOutlaw', 2)
-
-				TriggerServerEvent('esx_outlawalert:combatInProgress', {
-					x = ESX.Math.Round(playerCoords.x, 1),
-					y = ESX.Math.Round(playerCoords.y, 1),
-					z = ESX.Math.Round(playerCoords.z, 1)
-				}, streetName, playerGender)
-			end
-			-- is shootin'
-		elseif IsPedShooting(playerPed) and not IsPedCurrentWeaponSilenced(playerPed) and Config.GunshotAlert then
-
-			Citizen.Wait(3000)
-
-			if (isPlayerWhitelisted and Config.ShowCopsMisbehave) or not isPlayerWhitelisted then
-				DecorSetInt(playerPed, 'isOutlaw', 2)
-
-				TriggerServerEvent('esx_outlawalert:gunshotInProgress', {
-					x = ESX.Math.Round(playerCoords.x, 1),
-					y = ESX.Math.Round(playerCoords.y, 1),
-					z = ESX.Math.Round(playerCoords.z, 1)
-				}, streetName, playerGender)
+						TriggerServerEvent('esx_outlawalert:combatInProgress', {
+							x = ESX.Math.Round(playerCoords.x, 1),
+							y = ESX.Math.Round(playerCoords.y, 1),
+							z = ESX.Math.Round(playerCoords.z, 1)
+						}, streetName, playerGender)
+					end
+					Pukulan = 0
+				end
 			end
 
+		elseif IsPedShooting(playerPed) and not (GetSelectedPedWeapon(playerPed) == GetHashKey("WEAPON_FIREEXTINGUISHER")) or (GetSelectedPedWeapon(playerPed) == GetHashKey("WEAPON_PETROLCAN")) and Config.GunshotAlert then
+			Tembakan = Tembakan + 1
+			if Tembakan >= MaxTembakan then
+				Citizen.Wait(60000)
+				print(MaxTembakan)
+				if (isPlayerWhitelisted and Config.ShowCopsMisbehave) or not isPlayerWhitelisted then
+					DecorSetInt(playerPed, 'isOutlaw', 2)
+					TriggerServerEvent('esx_outlawalert:gunshotInProgress', {
+						x = ESX.Math.Round(playerCoords.x, 1),
+						y = ESX.Math.Round(playerCoords.y, 1),
+						z = ESX.Math.Round(playerCoords.z, 1)
+					}, streetName, playerGender)
+				end
+				Tembakan = 0
+			end
 		end
 	end
 end)
@@ -209,6 +221,30 @@ AddEventHandler('esx_outlawalert:gunshotInProgress', function(targetCoords)
 
 			if alpha == 0 then
 				RemoveBlip(gunshotBlip)
+				return
+			end
+		end
+	end
+end)
+
+RegisterNetEvent('esx_outlawalert:sellSharkInProgress')
+AddEventHandler('esx_outlawalert:sellSharkInProgress', function(targetCoords)
+	if isPlayerWhitelisted and Config.sellSharkAlert then
+		local alpha = 250
+		local sellsharkBlip = AddBlipForRadius(targetCoords.x, targetCoords.y, targetCoords.z, Config.BlipSharkRadius)
+
+		SetBlipHighDetail(sellsharkBlip, true)
+		SetBlipColour(sellsharkBlip, 1)
+		SetBlipAlpha(sellsharkBlip, alpha)
+		SetBlipAsShortRange(sellsharkBlip, true)
+
+		while alpha ~= 0 do
+			Citizen.Wait(Config.BlipGunTime * 2)
+			alpha = alpha - 1
+			SetBlipAlpha(sellsharkBlip, alpha)
+
+			if alpha == 0 then
+				RemoveBlip(sellsharkBlip)
 				return
 			end
 		end
