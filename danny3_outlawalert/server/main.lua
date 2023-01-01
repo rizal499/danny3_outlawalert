@@ -1,6 +1,4 @@
-ESX = nil
-
-TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+ESX = exports["es_extended"]:getSharedObject()
 
 RegisterServerEvent('esx_outlawalert:carJackInProgress')
 AddEventHandler('esx_outlawalert:carJackInProgress', function(targetCoords, streetName, vehicleLabel, playerGender)
@@ -28,6 +26,15 @@ AddEventHandler('esx_outlawalert:gunshotInProgress', function(targetCoords, stre
     length = 3500
     TriggerClientEvent('esx_outlawalert:outlawNotify', -1, mytype, data, length)
     TriggerClientEvent('esx_outlawalert:gunshotInProgress', -1, targetCoords)
+end, false)
+
+RegisterServerEvent('esx_outlawalert:sellSharkInProgress')
+AddEventHandler('esx_outlawalert:sellSharkInProgress', function(targetCoords, streetName, playerGender)
+	mytype = 'police'
+    data = {["code"] = '10-17', ["name"] = 'jual hiu in progress', ["loc"] = streetName}
+    length = 3500
+    TriggerClientEvent('esx_outlawalert:outlawNotify', -1, mytype, data, length)
+    TriggerClientEvent('esx_outlawalert:sellSharkInProgress', -1, targetCoords)
 end, false)
 
 ESX.RegisterServerCallback('esx_outlawalert:isVehicleOwner', function(source, cb, plate)
